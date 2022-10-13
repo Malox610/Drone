@@ -46,7 +46,7 @@ void ChangeRole()
       
        Serial.println("Maintenant R1");
     role ='R' ;
-    radio.openReadingPipe(1, addressR);
+    radio.openReadingPipe(0, addressR);
     radio.startListening();
     Serial.println("Maintenant R2");
     }
@@ -74,12 +74,12 @@ void loop()
      radio.read(&text, sizeof(text));
          Serial.println(text);
               Serial.println(" radio");
-         
-        
          ChangeRole();
           delay(1000);
        }else
        {
+        radio.openReadingPipe(0, addressR);
+    radio.startListening();
          Serial.println("Pas radio");
         
         }
@@ -91,11 +91,18 @@ void loop()
          const char text[] = "Envoi Mathis";
         bool report2= radio.write(&text, sizeof(text));
          Serial.println("tets envoie ");
-       
-           Serial.println("Envoyer");
+       if(report2==1)
+       {
+         Serial.println("Envoyer");
          ChangeRole();
-        
           delay(1000);
+        }
+        else
+        {
+          radio.openWritingPipe(addressE);
+    radio.stopListening();
+          }
+          
       } 
   
 }
