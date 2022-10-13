@@ -78,6 +78,8 @@ void loop()
           delay(1000);
        }else
        {
+         radio.openReadingPipe(0, addressR);
+         radio.startListening();
          Serial.println("Pas radio");
         
         }
@@ -89,8 +91,16 @@ void loop()
          const char text[] = "Envoi Mathis";
         bool report2= radio.write(&text, sizeof(text));
          Serial.println("tets envoie ");
-           Serial.println("Envoyer");
-         ChangeRole();
+         if(report2==1){
+         Serial.println("Envoyer");
+         ChangeRole();           
+         }
+         else
+         {
+            radio.openWritingPipe(addressE);
+    radio.stopListening();
+         }
+          
           delay(1000);
       } 
   
