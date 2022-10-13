@@ -60,15 +60,16 @@ void sendHeartbeat()
     RadioPacket radioData;
     radioData.PacketType = Heartbeat;
     radioData.FromRadioId = RADIO_ID;
-    radioData.OnTimeMillis = millis();
-
-    if (_radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData)))
+    radioData.OnTimeMillis = 144;
+    bool se = _radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData));
+    Serial.println(se);
+    if (se==1)
     {
         Serial.println("...Success");
     }
     else
     {
-        Serial.println("...Failed");
+        Serial.println("...prout");
     }
 }
 
@@ -80,7 +81,7 @@ void requestData()
     RadioPacket radioData;
     radioData.PacketType = BeginGetData; // When the receiver sees this packet type, it will load an ACK data packet.
     
-    if (_radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData)))
+    if (_radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData)))//problème ici
     {
         Serial.println("...Success");
         Serial.print("  Sending EndGetData");
@@ -109,11 +110,11 @@ void requestData()
         }
         else
         {
-            Serial.println("...Failed");
+            Serial.println("...raté");
         }
     }
     else
     {
-        Serial.println("...Failed");
+        Serial.println("...encore raté");
     }    
 }
