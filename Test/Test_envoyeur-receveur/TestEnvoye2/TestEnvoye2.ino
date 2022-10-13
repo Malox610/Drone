@@ -16,7 +16,7 @@ struct PayloadStruct {
 };
 PayloadStruct payload;
 
-char role = 'E';
+char role = 'R';
 void ChangeRole();
 
 void setup()
@@ -46,7 +46,7 @@ void ChangeRole()
       
        Serial.println("Maintenant R1");
     role ='R' ;
-    radio.openReadingPipe(0, addressR);
+    radio.openReadingPipe(1, addressR);
     radio.startListening();
     Serial.println("Maintenant R2");
     }
