@@ -50,7 +50,7 @@ void loop()
 
       if(role =='E') // if receveur
       {//Send message to receiver
-         const char text[] = "Hello World";
+         const char text[] = "Envoi Rémi";
          radio.write(&text, sizeof(text));
          ChangeRole();
           delay(1000);
