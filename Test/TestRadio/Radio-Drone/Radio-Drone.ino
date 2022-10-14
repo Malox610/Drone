@@ -60,11 +60,11 @@ void loop()
             RadioPacket ackData;
             ackData.PacketType = AcknowledgementData;
             ackData.FromRadioId = RADIO_ID;
-            ackData.OnTimeMillis = millis();
+            ackData.OnTimeMillis = 200;
 
             // Add the data to send back to the transmitter into the radio.
             // The next packet we receive will be acknowledged with this data.
-            _radio.addAckData(&ackData, sizeof(ackData));
+            _radio.send(1,&ackData, sizeof(ackData));
         }
         else if (radioData.PacketType == EndGetData)
         {

@@ -56,27 +56,19 @@ void loop()
 
 void sendHeartbeat()
 {
-    Serial.print("Sending heartbeat");
+    Serial.println("Sending heartbeat");
     RadioPacket radioData;
     radioData.PacketType = Heartbeat;
     radioData.FromRadioId = RADIO_ID;
     radioData.OnTimeMillis = 144;
-    bool se = _radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData));
-    Serial.println(se);
-    if (se==1)
-    {
-        Serial.println("...Success");
-    }
-    else
-    {
-        Serial.println("...prout");
-    }
+   _radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData));
+   
 }
 
 void requestData()
 {
     Serial.println("Requesting data");
-    Serial.print("  Sending BeginGetData");
+    Serial.println("  Sending BeginGetData");
 
     RadioPacket radioData;
     radioData.PacketType = BeginGetData; // When the receiver sees this packet type, it will load an ACK data packet.
@@ -88,23 +80,21 @@ void requestData()
 
         _radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData));
         
-            Serial.println("...Success");
+           Serial.println(_radio.hasAckData());
 
-            while (_radio.hasAckData()) // Look to see if the receiver provided the ACK data.
-            {
+            // Look to see if the receiver provided the ACK data.
+            
+              Serial.println("aaaaaaa");
                 RadioPacket ackData;
                 _radio.readData(&ackData);
 
-                if (ackData.PacketType == AcknowledgementData)
-                {
                     String msg = "  Received ACK data from ";
                     msg += ackData.FromRadioId;
                     msg += ", ";
                     msg += ackData.OnTimeMillis;
                     msg += " ms";
                     Serial.println(msg);
-                }
-            }
+            
         
     
 }
