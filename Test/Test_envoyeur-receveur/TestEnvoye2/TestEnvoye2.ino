@@ -22,10 +22,7 @@ void ChangeRole();
 void setup()
 {
   Serial.begin(115200);
-   if (!radio.begin()) {
-    Serial.println(F("radio hardware is not responding!!"));
-    while (1) {}  // hold in infinite loop
-  }
+ 
 
    radio.setPALevel(RF24_PA_LOW);  // RF24_PA_MAX is default.
 
@@ -35,6 +32,8 @@ void setup()
 
   // Set the pipe addresses accordingly. This function additionally also
   // calls startListening() or stopListening() and sets the payload's nodeID
+
+  ChangeRole();
   
   
 }
@@ -65,24 +64,18 @@ void loop()
   Serial.println(role);
   // delay(1000);
   
-  if(role =='R') // if receveur
+ if(role =='R') // if receveur
     {
         Serial.println("ya til un message");
-       if (radio.available())
-       {
+       
          char text[32] = {0};
      radio.read(&text, sizeof(text));
-         Serial.println(text);
-              Serial.println(" radio");
+     if(sizeof(text)>1)
+     {
+         Serial.println(text);     
          ChangeRole();
           delay(1000);
-       }else
-       {
-        radio.openReadingPipe(0, addressR);
-    radio.startListening();
-         Serial.println("Pas radio");
-        
-        }
+     }
     } 
 
       if(role =='E') // if receveur
