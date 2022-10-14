@@ -80,16 +80,14 @@ void requestData()
 
     RadioPacket radioData;
     radioData.PacketType = BeginGetData; // When the receiver sees this packet type, it will load an ACK data packet.
+    _radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData));
     
-    if (_radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData)))//problème ici
-    {
-        Serial.println("...Success");
-        Serial.print("  Sending EndGetData");
+        
 
         radioData.PacketType = EndGetData; // When the receiver acknowledges this packet, we will get the ACK data.
 
-        if (_radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData)))
-        {
+        _radio.send(DESTINATION_RADIO_ID, &radioData, sizeof(radioData));
+        
             Serial.println("...Success");
 
             while (_radio.hasAckData()) // Look to see if the receiver provided the ACK data.
@@ -107,14 +105,6 @@ void requestData()
                     Serial.println(msg);
                 }
             }
-        }
-        else
-        {
-            Serial.println("...raté");
-        }
-    }
-    else
-    {
-        Serial.println("...encore raté");
-    }    
+        
+    
 }
