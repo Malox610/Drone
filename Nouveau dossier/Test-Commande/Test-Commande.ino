@@ -9,12 +9,21 @@
 #define pinSERVO  9         // On associe la broche "SIGNAL" du SERVO à la sortie digitale D9 de l'arduino
 #define pinPOT    A0        // On associe le point milieu du potentiomètre à l'entrée analogique A0 de l'arduino
 
+
+//pin joystick
+const int SW_pin = 2; // digital pin connected to switch output
+const int X_pin = A3; // analog pin connected to X output
+const int Y_pin = A2; // analog pin connected to Y output
+// 1 X24 Y25
+// 2 X22 Y23
+
 #define tunnel1 "PIPE1"     // On définit un premier "nom de tunnel" (5 caractères), pour pouvoir envoyer des données à l'autre NRF24
 #define tunnel2 "PIPE2"     // On définit un second "nom de tunnel" (5 caractères), pour pouvoir recevoir des données de l'autre NRF24
 
 RF24 radio(pinCE, pinCSN);  // Instanciation du NRF24L01
 Servo servomoteur;          // Instanciation d'un objet pour contrôler le servomoteur
 
+int hauteur =0;
 const byte adresses[][6] = {tunnel1, tunnel2};    // Tableau des adresses de tunnel, au format "byte array"
 
 int valeurPotLocal;            // Variable contenant la valeur du potentiomètre
@@ -22,8 +31,9 @@ int valeurAngleServoLocal;     // Variable contenant la valeur de l'angle du ser
 int valeurAngleServoDistant;   // Variable contenant la valeur de l'angle du servomoteur
 
 void setup() {
-  pinMode(pinPOT, INPUT);         // Déclaration de la pin "pinPOT" en entrée
-  servomoteur.attach(pinSERVO);   // Liaison de la pin "pinSERVO" au servomoteur branché sur l'arduino
+  Serial.begin(115200);
+  pinMode(SW_pin, INPUT);
+  digitalWrite(SW_pin, HIGH);
   
   radio.begin();                           // Initialisation du module NRF24
   radio.openWritingPipe(adresses[0]);      // Ouverture du "tunnel1" en ÉCRITURE
@@ -38,18 +48,34 @@ void setup() {
 void loop() {
   // ******** ENVOI ********
   radio.stopListening();                                                  // On commence par arrêter le mode écoute, pour pouvoir émettre les données
-  valeurPotLocal = analogRead(pinPOT);                                    // On lit la valeur du potentiomètre (résultat retourné entre 0 et 1023)
-  valeurAngleServoDistant = map(valeurPotLocal, 0, 1023, 0, 180);         // On converti la valeur [0..1023] en [0..180] (pour correspondre à l'angle d'un servo)
-  valeurAngleServoDistant = 2*(int)(valeurAngleServoDistant/2);           // Léger arrondi, pour limiter les "tremblements" du servomoteur
-  radio.write(&valeurAngleServoDistant, sizeof(valeurAngleServoDistant)); // … et on envoi cette valeur à l'autre arduino, via le NRF24
+ 
+ int position1 = 0;
+ if(analogRead(Y_pin)>=800 && analogRead(X_pin) <= 600 && analogRead(X_pin) >= 400 ){
+    position1 = 11;
+  }else if(analogRead(Y_pin)<=300 && analogRead(X_pin) <= 600 && analogRead(X_pin) >= 400){
+    position1 = 12;
+  }else if(analogRead(X_pin)>=800 && analogRead(Y_pin) <= 600 && analogRead(Y_pin) >= 400){
+    position1 = 13;
+  }else if(analogRead(X_pin)<=300 && analogRead(Y_pin) <= 600 && analogRead(Y_pin) >= 400){
+    position1 = 14;
+  }
+  //je capte pas ca je suppose c'est pour le clic mais analog write je capte pas
+  if(digitalRead(SW_pin)==0){
+  analogWrite(6,200);
+  }else {
+      analogWrite(6,0);
+
+  }       
+  
+  radio.write(&position1, sizeof(position1)); // … et on envoi cette valeur à l'autre arduino, via le NRF24
   delay(5);                                                               // avec une petite pause, avant de passer à la suite
 
   // ******** RÉCEPTION ********
   radio.startListening();                                                 // On commence par arrêter le mode envoi, pour pouvoir réceptionner des données
   if(radio.available()) {                                                 // On regarde si une donnée a été reçue
     while (radio.available()) {                                           // Si une donné est en attente de lecture, on va la lire
-      radio.read(&valeurAngleServoLocal, sizeof(valeurAngleServoLocal));  // Lecture des données reçues, une par une
-      servomoteur.write(valeurAngleServoLocal);                           // … et ajustement de l'angle du servomoteur à chaque fois
+      radio.read(&hauteur, sizeof(hauteur));  // Lecture des données reçues, une par une
+      Serial.println(hauteur);
     }
     delay(20);                                                             // avec une petite pause, avant de reboucler
   }
