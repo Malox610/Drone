@@ -4,8 +4,8 @@
 #include <RF24.h>
 #include <Servo.h>
 
-#define pinCE     7         // On associe la broche "CE" du NRF24L01 à la sortie digitale D7 de l'arduino
-#define pinCSN    8         // On associe la broche "CSN" du NRF24L01 à la sortie digitale D8 de l'arduino
+#define pinCE     5         // On associe la broche "CE" du NRF24L01 à la sortie digitale D7 de l'arduino
+#define pinCSN    4         // On associe la broche "CSN" du NRF24L01 à la sortie digitale D8 de l'arduino
 #define pinSERVO  9         // On associe la broche "SIGNAL" du SERVO à la sortie digitale D9 de l'arduino
 #define pinPOT    A0        // On associe le point milieu du potentiomètre à l'entrée analogique A0 de l'arduino
 
@@ -41,32 +41,15 @@ void setup() {
   radio.setPALevel(RF24_PA_MIN);           // Sélection d'un niveau "MINIMAL" pour les essais mettre RF24_PA_MAX pour les vrai test
   radio.setChannel(96); // fréquence 2496 Mhz
   
-  servomoteur.write(90);    // Rotation du servomoteur pour le mettre en position médiane
-  delay(2000);              // puis démarrage du programme
+  
+  delay(1000);              // puis démarrage du programme
 }
 
 void loop() {
   // ******** ENVOI ********
   radio.stopListening();                                                  // On commence par arrêter le mode écoute, pour pouvoir émettre les données
- 
- int position1 = 0;
- if(analogRead(Y_pin)>=800 && analogRead(X_pin) <= 600 && analogRead(X_pin) >= 400 ){
-    position1 = 11;
-  }else if(analogRead(Y_pin)<=300 && analogRead(X_pin) <= 600 && analogRead(X_pin) >= 400){
-    position1 = 12;
-  }else if(analogRead(X_pin)>=800 && analogRead(Y_pin) <= 600 && analogRead(Y_pin) >= 400){
-    position1 = 13;
-  }else if(analogRead(X_pin)<=300 && analogRead(Y_pin) <= 600 && analogRead(Y_pin) >= 400){
-    position1 = 14;
-  }
-  //je capte pas ca je suppose c'est pour le clic mais analog write je capte pas
-  if(digitalRead(SW_pin)==0){
-  analogWrite(6,200);
-  }else {
-      analogWrite(6,0);
 
-  }       
-  
+ int position1 = 4;
   radio.write(&position1, sizeof(position1)); // … et on envoi cette valeur à l'autre arduino, via le NRF24
   delay(5);                                                               // avec une petite pause, avant de passer à la suite
 
@@ -74,8 +57,9 @@ void loop() {
   radio.startListening();                                                 // On commence par arrêter le mode envoi, pour pouvoir réceptionner des données
   if(radio.available()) {                                                 // On regarde si une donnée a été reçue
     while (radio.available()) {                                           // Si une donné est en attente de lecture, on va la lire
-      radio.read(&hauteur, sizeof(hauteur));  // Lecture des données reçues, une par une
-      Serial.println(hauteur);
+      radio.read(&hauteur, sizeof(hauteur));  // Lecture des donnéwaz es reçues, une par une
+     Serial.print("Recu : ");
+     Serial.println(hauteur);
     }
     delay(20);                                                             // avec une petite pause, avant de reboucler
   }

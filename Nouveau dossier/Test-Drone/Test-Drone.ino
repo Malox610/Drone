@@ -2,9 +2,9 @@
 #include <RF24.h>
 #include <Servo.h>
 
-#define pinCE     7         // On associe la broche "CE" du NRF24L01 à la sortie digitale D7 de l'arduino
-#define pinCSN    8         // On associe la broche "CSN" du NRF24L01 à la sortie digitale D8 de l'arduino
-#define pinSERVO1  9         // On associe la broche "SIGNAL" du SERVO à la sortie digitale D9 de l'arduino
+#define pinCE       9       // On associe la broche "CE" du NRF24L01 à la sortie digitale D7 de l'arduino
+#define pinCSN      8       // On associe la broche "CSN" du NRF24L01 à la sortie digitale D8 de l'arduino
+#define pinSERVO1  11     // On associe la broche "SIGNAL" du SERVO à la sortie digitale D9 de l'arduino
 #define pinSERVO2  10         // On associe la broche "SIGNAL" du SERVO à la sortie digitale D9 de l'arduino
 
 #define pinPOT    A0        // On associe le point milieu du potentiomètre à l'entrée analogique A0 de l'arduino
@@ -23,9 +23,12 @@ const byte adresses[][6] = {tunnel1, tunnel2};    // Tableau des adresses de tun
 int valeurAngleServoLocal;     // Variable contenant la valeur de l'angle du servomoteur1
 int valeurAngleServoDistant;   // Variable contenant la valeur de l'angle du servomoteur1
 
-int hauteur =10;
-int comm =0;
+int hauteur =20;
+
+
+
 void setup() {
+  Serial.begin(115200);
   pinMode(pinPOT, INPUT);         // Déclaration de la pin "pinPOT" en entrée
   servomoteur1.attach(pinSERVO1);   // Liaison de la pin "pinSERVO" au servomoteur1 branché sur l'arduino
   servomoteur2.attach(pinSERVO2);   // Liaison de la pin "pinSERVO" au servomoteur1 branché sur l'arduino
@@ -36,12 +39,11 @@ void setup() {
   radio.setPALevel(RF24_PA_MIN);           // Sélection d'un niveau "MINIMAL" pour les essais mettre RF24_PA_MAX pour les vrai test
   radio.setChannel(96); // fréquence 2496 Mhz
   
-  servomoteur1.write(90);    // Rotation du servomoteur1 pour le mettre en position médiane
-  delay(2000);              // puis démarrage du programme
+  delay(1000);              // puis démarrage du programme
 }
 
 void loop() {
-  comm=0;
+ int comm=14;
   // ******** ENVOI ********
   radio.stopListening();                                                  // On commence par arrêter le mode écoute, pour pouvoir émettre les données
   radio.write(&hauteur, sizeof(hauteur)); // … et on envoi cette valeur à l'autre arduino, via le NRF24
@@ -52,25 +54,7 @@ void loop() {
   if(radio.available()) {     //moyen que il n'y est rien                                            // On regarde si une donnée a été reçue
     while (radio.available()) {                                           // Si une donné est en attente de lecture, on va la lire
       radio.read(&comm, sizeof(comm));  // Lecture des données reçues, une par une
-     
-      if(comm==11){ //monte
-        servomoteur1.write(180);                           // … et ajustement de l'angle du servomoteur1 à chaque fois
-        hauteur =15 ;
-        }
-        if(comm==12){//descend
-        servomoteur1.write(0);                           // … et ajustement de l'angle du servomoteur1 à chaque fois
-        hauteur =15 ;
-        }
-        if(comm==13){ //va sur la gauche
-        servomoteur2.write(180);                           // … et ajustement de l'angle du servomoteur1 à chaque fois
-        hauteur =15 ;
-        }
-        if(comm==14){//va sur la droit 
-        servomoteur2.write(0);                           // … et ajustement de l'angle du servomoteur1 à chaque fois
-        hauteur =15 ;
-        }
-      
-    
+     Serial.println(comm);
     }
     delay(20);                                                             // avec une petite pause, avant de reboucler
   }
