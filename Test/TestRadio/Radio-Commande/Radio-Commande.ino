@@ -8,6 +8,9 @@ const static uint8_t DESTINATION_RADIO_ID = 0;
 const static uint8_t PIN_RADIO_CE = 9;
 const static uint8_t PIN_RADIO_CSN = 10;
 
+
+
+
 enum RadioPacketType
 {
     AcknowledgementData, // Produced by the primary receiver and provided to the transmitter via an acknowledgement data packet.
@@ -29,6 +32,10 @@ uint32_t _lastHeartbeatSendTime, _lastDataRequestTime;
 void setup()
 {
     Serial.begin(115200);
+    
+  pinMode(SW_pin, INPUT);
+  digitalWrite(SW_pin, HIGH);
+ 
 
     if (!_radio.init(RADIO_ID, PIN_RADIO_CE, PIN_RADIO_CSN))
     {
