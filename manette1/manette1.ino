@@ -31,6 +31,7 @@ const int Y2_pin = A0;
  int PosX2 = 0;
  int PosY2 = 0;
  int buzzer = 1;
+ const int mdp =2534;
  
 void setup()
 {
@@ -57,7 +58,7 @@ void loop()
   PosX2 = analogRead(X2_pin);
   PosY2 = analogRead(Y2_pin);
 
-  int Pos[] = {PosX1,PosY1,PosX2,PosY2};
+  int Pos[] = {PosX1,PosY1,PosX2,PosY2,mdp};
   
   Pos[0] = map(PosX1, 0,1023,0,180);
   Pos[1] = map(PosY1, 0,1023,0,180);

@@ -21,6 +21,7 @@ int PosX1 = 90;
 int PosY1 = 90;
 int PosX2 = 90;
 int PosY2 = 90;
+const int mdp =2534;
 
 
 void setup()
@@ -51,10 +52,12 @@ radio.startListening();
 if (radio.available()){
   while (radio.available()) {  
     
-int Pos[] = {PosX1,PosY1,PosX2,PosY2};
+int Pos[] = {PosX1,PosY1,PosX2,PosY2,mdp};
     int value = 3;
     radio.read(Pos, sizeof(Pos));
     Serial.println(value);
+      if(Pos[5]==mdp)
+      {
     PosX1 = Pos[0];
     PosY1 = Pos[1];
     PosX2 = Pos[2];
@@ -69,7 +72,10 @@ int Pos[] = {PosX1,PosY1,PosX2,PosY2};
   //Serial.println(PosY1);
   //Serial.println(PosX2);
   //Serial.println(PosY2);  
-  
+      }else
+      {
+        Serial.println("mauvaise commande");
+        }
   }
   delay(20);
   }
