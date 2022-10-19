@@ -11,7 +11,6 @@
 #define tunnel1 "PIPE2"     // On définit un premier "nom de tunnel" (5 caractères), pour pouvoir envoyer des données à l'autre NRF24
 #define tunnel2 "PIPE1"     // On définit un second "nom de tunnel" (5 caractères), pour pouvoir recevoir des données de l'autre NRF24
 
-const byte adresses[][6] = {tunnel1, tunnel2};    // Tableau des adresses de tunnel, au format "byte array"
 
 
 //create an RF24 object
@@ -20,6 +19,8 @@ Servo myServoX1;
 Servo myServoY1;
 Servo myServoX2;
 Servo myServoY2;
+
+const byte adresses[][6] = {tunnel1, tunnel2};    // Tableau des adresses de tunnel, au format "byte array"
 
 
 void setup()
@@ -36,7 +37,7 @@ void setup()
   radio.openReadingPipe(1, adresses[1]);   // Ouverture du "tunnel2" en LECTURE
   radio.setPALevel(RF24_PA_MIN);           // Sélection d'un niveau "MINIMAL" pour les essais mettre RF24_PA_MAX pour les vrai test
   radio.setChannel(96); // fréquence 2496 Mhz
-   delay(1000); 
+   delay(500); 
 }
 
 void loop()
@@ -45,14 +46,13 @@ int PosX1 = 90;
 int PosY1 = 90;
 int PosX2 = 90;
 int PosY2 = 90;
-
-  //Read the data if available in buffer
+int Pos[] = {PosX1,PosY1,PosX2,PosY2};
+  //Reception
   radio.startListening();
   if (radio.available())
   {
-    
-  int Pos[] = {PosX1,PosY1,PosX2,PosY2};
-  
+    while(radio.available())
+    {
     radio.read(Pos, sizeof(Pos));
 
     PosX1 = Pos[0];
@@ -69,7 +69,8 @@ int PosY2 = 90;
   Serial.println(PosY1);
   Serial.println(PosX2);
   Serial.println(PosY2);  
-
+    }
+    delay(5);
   }
  int hauteur =4;
    // ******** ENVOI ********
