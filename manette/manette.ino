@@ -70,7 +70,7 @@ void loop()
   delay(100);
 
   //récéption
- int hauteur ;
+ int hauteur =0;
  radio.startListening();                                                 // On commence par arrêter le mode envoi, pour pouvoir réceptionner des données
   if(radio.available()) {                                                 // On regarde si une donnée a été reçue
     while (radio.available()) {                                           // Si une donné est en attente de lecture, on va la lire
