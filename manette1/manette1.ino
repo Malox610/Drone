@@ -30,7 +30,7 @@ const int Y2_pin = A0;
  int PosY1 = 0;
  int PosX2 = 0;
  int PosY2 = 0;
- int hauteur = 0;
+ int buzzer = 1;
  
 void setup()
 {
@@ -50,12 +50,6 @@ void setup()
 }
 void loop()
 { 
-  if(digitalRead(SW2_pin)==0){
-  analogWrite(6,200);
-  }else {
-  analogWrite(6,0);
-  }
-
   radio.stopListening();   
 
   PosX1 = analogRead(X1_pin);
@@ -92,8 +86,14 @@ void loop()
   radio.startListening();
   if(radio.available()) { 
   while (radio.available()) {                                           
-      radio.read(&hauteur, sizeof(hauteur)); 
-      Serial.println(hauteur); 
+      radio.read(&buzzer, sizeof(buzzer)); 
+      Serial.println(buzzer); 
+        if(digitalRead(buzzer)==1){
+  analogWrite(6,200);
+  }else {
+  analogWrite(6,0);
+  }
+  
     }
     delay(20);
 }

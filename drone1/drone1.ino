@@ -15,11 +15,13 @@ Servo myServoY1;
 Servo myServoX2;
 Servo myServoY2;
 
+const int bouton = 2;
+
 int PosX1 = 90;
 int PosY1 = 90;
 int PosX2 = 90;
 int PosY2 = 90;
-int hauteur = 7;
+
 
 void setup()
 {
@@ -28,7 +30,7 @@ void setup()
     myServoY1.attach(6);
     myServoX2.attach(4);
     myServoY2.attach(3);
-    
+    pinMode(bouton, INPUT);
   radio.begin();                          
   radio.openWritingPipe(adresses[0]);      
   radio.openReadingPipe(1, adresses[1]);   
@@ -40,8 +42,9 @@ void setup()
 
 void loop()
 {
- radio.stopListening();    
- radio.write(&hauteur, sizeof(hauteur));
+ radio.stopListening();  
+ int buzzer = digitalRead(bouton);  
+ radio.write(&buzzer, sizeof(buzzer));
  delay(5);
 
 radio.startListening();  
