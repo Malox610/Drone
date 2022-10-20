@@ -21,7 +21,7 @@ int PosX1 = 90;
 int PosY1 = 90;
 int PosX2 = 90;
 int PosY2 = 90;
-const int mdp =2534;
+int mdp =2534;
 
 
 void setup()
@@ -54,9 +54,10 @@ if (radio.available()){
     
 int Pos[] = {PosX1,PosY1,PosX2,PosY2,mdp};
     int value = 3;
-    radio.read(Pos, sizeof(Pos));
-    Serial.println(value);
-      if(Pos[5]==mdp)
+    radio.read(&Pos, sizeof(Pos));
+    Serial.println(mdp);
+    Serial.println(Pos[4]);
+      if(Pos[4]==mdp)
       {
     PosX1 = Pos[0];
     PosY1 = Pos[1];
