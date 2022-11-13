@@ -6,10 +6,14 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+#include <MPU9250_WE.h>
 
 #define t1 "PIPE1"    
 #define t2 "PIPE2"
+#define MPU9250_ADDR 0x68 //gyrospcope I2C adress
+#define OLED_ADDR 0x3C
 
+MPU9250_WE myMPU9250 = MPU9250_WE( MPU9250_ADDR);
 //create an RF24 object
 RF24 radio(5, 4);  // CE, CSN
 
@@ -34,22 +38,54 @@ const int Y2_pin = A0;
  int PSW2 = 1;
  int buzzer = 1;
  int mdp =2534;
- 
+
+  float x =0 ;
+  float y=0;
+  float z=0 ;
 void setup()
 {
   Serial.begin(115200);
 
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  
   radio.begin();                           
   radio.openWritingPipe(adresses[0]);      
   radio.openReadingPipe(1, adresses[1]);
   radio.setPALevel(RF24_PA_MIN);
   radio.setChannel(96);
+
+ // Wire.beginTransmission(OLED_ADDR);
+
+  Wire.beginTransmission(0x3C); // start of the display 
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.println("Position you MPU9250 flat and don't move it - calibrating...");
+  Wire.endTransmission();
+
+  
+  //ecrire sur l'ecran la calibration 
+  //calibration
+   Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
+   if(!myMPU9250.init()){
+    Serial.println("MPU9250 does not respond");
+  }
+  else{
+    Serial.println("MPU9250 is connected");
+  }
+    Serial.println();
+    delay(1000);
+   myMPU9250.autoOffsets();
+    Serial.println("Done!");
+
+     myMPU9250.enableGyrDLPF();
+    myMPU9250.setGyrDLPF(MPU9250_DLPF_6);
+     myMPU9250.setSampleRateDivider(99);
+     myMPU9250.setGyrRange(MPU9250_GYRO_RANGE_250);
    
-  delay(2000);
+  Wire.endTransmission(MPU9250_ADDR);//fin recuperation donnée gyroscope
+
+
+   
+  delay(1000);
 }
 void loop()
 { 
@@ -62,6 +98,16 @@ void loop()
   PSW1 = digitalRead(SW1_pin);
   PSW2 = digitalRead(SW2_pin);
 
+  //gyroscope 
+  Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
+  
+  xyzFloat Gyr_value=myMPU9250.getGyrValues(); //in degrees/s
+  x=Gyr_value.x ;
+   y=Gyr_value.y ;
+    z=Gyr_value.z ;
+    
+  Wire.endTransmission(MPU9250_ADDR);//fin recuperation donnée gyroscope
+  
   
   mdp = 2534;
 
@@ -77,7 +123,7 @@ void loop()
   //Serial.println(Pos[1]);
   //Serial.println(Pos[2]);
   //Serial.println(Pos[3]);
-
+  Wire.beginTransmission(0x3C); // start of the display 
   display.clearDisplay();
   display.setCursor(10,10);
   display.println(Pos[0]);
@@ -94,6 +140,7 @@ void loop()
   display.setCursor(70,30);
   display.println(PSW2);*/
   display.display();
+  Wire.endTransmission(); //end of the display 
   radio.write(&Pos, sizeof(Pos));
 
   delay(5);

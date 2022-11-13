@@ -21,7 +21,6 @@ int PosX1 = 90;
 int PosY1 = 90;
 int PosX2 = 90;
 int PosY2 = 90;
-int mdp =2534;
 
 
 void setup()
@@ -36,7 +35,7 @@ void setup()
   radio.openWritingPipe(adresses[0]);      
   radio.openReadingPipe(1, adresses[1]);   
   radio.setPALevel(RF24_PA_MIN);   
-  radio.setChannel(96); 
+  radio.setChannel(120); 
 
   delay(2000);
 }
@@ -52,13 +51,10 @@ radio.startListening();
 if (radio.available()){
   while (radio.available()) {  
     
-int Pos[] = {PosX1,PosY1,PosX2,PosY2,mdp};
+int Pos[] = {PosX1,PosY1,PosX2,PosY2};
     int value = 3;
-    radio.read(&Pos, sizeof(Pos));
-    Serial.println(mdp);
-    Serial.println(Pos[4]);
-      if(Pos[4]==mdp)
-      {
+    radio.read(Pos, sizeof(Pos));
+    Serial.println(value);
     PosX1 = Pos[0];
     PosY1 = Pos[1];
     PosX2 = Pos[2];
@@ -73,10 +69,7 @@ int Pos[] = {PosX1,PosY1,PosX2,PosY2,mdp};
   //Serial.println(PosY1);
   //Serial.println(PosX2);
   //Serial.println(PosY2);  
-      }else
-      {
-        Serial.println("mauvaise commande");
-        }
+  
   }
   delay(20);
   }
