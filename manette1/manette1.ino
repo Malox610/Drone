@@ -4,9 +4,10 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <SPI.h>
-#include <nRF24L01.h>
+//#include <nRF24L01.h>
 #include <RF24.h>
 #include <MPU9250_WE.h>
+
 
 #define t1 "PIPE1"    
 #define t2 "PIPE2"
@@ -23,12 +24,12 @@ const byte adresses[][6] = {t1, t2};
 #define SCREEN_HEIGHT 64
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-const int SW1_pin = 2; 
-const int X1_pin = A3; 
-const int Y1_pin = A2; 
-const int SW2_pin = 3;
+const int SW1_pin = 2; //D2  INT0
+const byte X1_pin = A3;//A3 
+const int Y1_pin = A2; //A2
+const int SW2_pin = 3;//D3 INT1
 const int X2_pin = A1;
-const int Y2_pin = A0; 
+const int Y2_pin = A0; //A0
 
  int PosX1 = 0;
  int PosY1 = 0;
@@ -42,10 +43,34 @@ const int Y2_pin = A0;
   float x =0 ;
   float y=0;
   float z=0 ;
+
+
+void interruptILS1()
+{
+  Serial.println("interrup1");
+  delay(200);
+  }
+
+void interruptILS2()
+{
+  Serial.println("interrupt2");
+  delay(200);
+  }
+  
 void setup()
 {
   Serial.begin(115200);
+//interrupt
 
+ pinMode(SW1_pin, INPUT_PULLUP);
+ pinMode(SW2_pin, INPUT_PULLUP);
+
+  attachInterrupt(digitalPinToInterrupt(SW1_pin), interruptILS1, RISING);
+  attachInterrupt(digitalPinToInterrupt(SW2_pin), interruptILS2, RISING);
+
+ 
+
+//radio 
   radio.begin();                           
   radio.openWritingPipe(adresses[0]);      
   radio.openReadingPipe(1, adresses[1]);
@@ -65,13 +90,7 @@ void setup()
   //ecrire sur l'ecran la calibration 
   //calibration
    Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
-   if(!myMPU9250.init()){
-    Serial.println("MPU9250 does not respond");
-  }
-  else{
-    Serial.println("MPU9250 is connected");
-  }
-    Serial.println();
+   
     delay(1000);
    myMPU9250.autoOffsets();
     Serial.println("Done!");
@@ -97,7 +116,10 @@ void loop()
   PosY2 = analogRead(Y2_pin);
   PSW1 = digitalRead(SW1_pin);
   PSW2 = digitalRead(SW2_pin);
-
+Serial.println(PSW1);
+Serial.println(" ");
+Serial.println(PSW2);
+Serial.println("\n");
   //gyroscope 
   Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
   
@@ -105,6 +127,15 @@ void loop()
   x=Gyr_value.x ;
    y=Gyr_value.y ;
     z=Gyr_value.z ;
+/*Serial.print("x =");
+Serial.print(x,3);
+Serial.print(" y =");
+Serial.print(y,3);
+Serial.print(" z =");
+Serial.print(z,3);
+Serial.print("\n");*/
+//delay(900);
+
     
   Wire.endTransmission(MPU9250_ADDR);//fin recuperation donnée gyroscope
   
