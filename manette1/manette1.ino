@@ -40,6 +40,8 @@ const int Y2_pin = A0; //A0
  int buzzer = 1;
  int mdp =2534;
 
+ byte mode =0 ;
+
   float x =0 ;
   float y=0;
   float z=0 ;
@@ -47,14 +49,31 @@ const int Y2_pin = A0; //A0
 
 void interruptILS1()
 {
-  Serial.println("interrup1");
-  delay(200);
-  }
+  Serial.println("Interrupt 1" ) ;
+  if(mode==0)
+  {
+    mode =1 ;
+    
+    
+  }else if(mode==1)
+  {
+    mode =0;
+    }
+    delay(5);
+}
 
 void interruptILS2()
 {
-  Serial.println("interrupt2");
-  delay(200);
+   Serial.println("Interrupt 2" ) ;
+  if(mode==0)
+  {
+    mode =1 ;
+    
+  }else if(mode==1)
+  {
+    mode =0;
+    }
+    delay(5);
   }
   
 void setup()
@@ -106,9 +125,9 @@ void setup()
    
   delay(1000);
 }
-void loop()
-{ 
-  radio.stopListening();   
+void modeJoystick()
+{
+    radio.stopListening();   
 
   PosX1 = analogRead(X1_pin);
   PosY1 = analogRead(Y1_pin);
@@ -120,27 +139,9 @@ Serial.println(PSW1);
 Serial.println(" ");
 Serial.println(PSW2);
 Serial.println("\n");
-  //gyroscope 
-  Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
-  
-  xyzFloat Gyr_value=myMPU9250.getGyrValues(); //in degrees/s
-  x=Gyr_value.x ;
-   y=Gyr_value.y ;
-    z=Gyr_value.z ;
-/*Serial.print("x =");
-Serial.print(x,3);
-Serial.print(" y =");
-Serial.print(y,3);
-Serial.print(" z =");
-Serial.print(z,3);
-Serial.print("\n");*/
-//delay(900);
 
-    
-  Wire.endTransmission(MPU9250_ADDR);//fin recuperation donnée gyroscope
-  
-  
-  mdp = 2534;
+
+mdp = 2534;
 
   int Pos[] = {PosX1,PosY1,PosX2,PosY2,mdp};
   
@@ -191,4 +192,124 @@ Serial.print("\n");*/
     delay(20);
 }
  delay(5);
+  
+}
+
+void modeIMU()
+{
+  Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
+  
+  xyzFloat Gyr_value=myMPU9250.getGyrValues(); //in degrees/s
+  x=Gyr_value.x ;
+   y=Gyr_value.y ;
+    z=Gyr_value.z ;
+Serial.print("x =");
+Serial.print(x,3);
+Serial.print(" y =");
+Serial.print(y,3);
+Serial.print(" z =");
+Serial.print(z,3);
+Serial.print("\n");
+delay(500);
+Wire.endTransmission(MPU9250_ADDR);
+  
+  }
+
+void loop()
+{ 
+Serial.println(mode);
+  if(mode==1)
+  {
+    Serial.println("Mode IMU" ) ;
+   modeIMU(); 
+   
+    }
+    else
+    {
+      Serial.println("Mode Joystick" ) ;
+      modeJoystick();
+      }
+ /* radio.stopListening();   
+
+  PosX1 = analogRead(X1_pin);
+  PosY1 = analogRead(Y1_pin);
+  PosX2 = analogRead(X2_pin);
+  PosY2 = analogRead(Y2_pin);
+  PSW1 = digitalRead(SW1_pin);
+  PSW2 = digitalRead(SW2_pin);
+Serial.println(PSW1);
+Serial.println(" ");
+Serial.println(PSW2);
+Serial.println("\n");
+  //gyroscope 
+  Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
+  
+  xyzFloat Gyr_value=myMPU9250.getGyrValues(); //in degrees/s
+  x=Gyr_value.x ;
+   y=Gyr_value.y ;
+    z=Gyr_value.z ;
+/*Serial.print("x =");
+Serial.print(x,3);
+Serial.print(" y =");
+Serial.print(y,3);
+Serial.print(" z =");
+Serial.print(z,3);
+Serial.print("\n");*/
+//delay(900);
+
+    
+  /*Wire.endTransmission(MPU9250_ADDR);//fin recuperation donnée gyroscope
+  
+  
+  mdp = 2534;
+
+  int Pos[] = {PosX1,PosY1,PosX2,PosY2,mdp};
+  
+  Pos[0] = map(PosX1, 0,1023,0,180);
+  Pos[1] = map(PosY1, 0,1023,0,180);
+  Pos[2] = map(PosX2, 0,1023,0,180);
+  Pos[3] = map(PosY2, 0,1023,0,180);
+  
+
+  //Serial.println(Pos[0]);
+  //Serial.println(Pos[1]);
+  //Serial.println(Pos[2]);
+  //Serial.println(Pos[3]);
+  Wire.beginTransmission(0x3C); // start of the display 
+  display.clearDisplay();
+  display.setCursor(10,10);
+  display.println(Pos[0]);
+  display.setCursor(10,30);
+  display.println(Pos[2]);
+  
+  display.setCursor(40,10);
+  display.println(Pos[1]);
+  display.setCursor(40,30);
+  display.println(Pos[3]);
+  
+ /* display.setCursor(70,10);
+  display.println(PSW1);
+  display.setCursor(70,30);
+  display.println(PSW2);*/
+/*  display.display();
+  Wire.endTransmission(); //end of the display 
+  radio.write(&Pos, sizeof(Pos));
+
+  delay(5);
+
+  radio.startListening();
+  if(radio.available()) { 
+  while (radio.available()) {                                           
+      radio.read(&buzzer, sizeof(buzzer)); 
+      Serial.println(buzzer); 
+        if(digitalRead(buzzer)==1){
+  analogWrite(6,200);
+  }else {
+  analogWrite(6,0);
+  }
+  
+    }
+    delay(20);
+}
+ delay(5);*/
 }
