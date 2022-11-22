@@ -53,13 +53,12 @@ void interruptILS1()
   if(mode==0)
   {
     mode =1 ;
-    
-    
+
   }else if(mode==1)
   {
     mode =0;
     }
-    delay(5);
+    delay(50);
 }
 
 void interruptILS2()
@@ -73,7 +72,8 @@ void interruptILS2()
   {
     mode =0;
     }
-    delay(5);
+    delay(50);
+     
   }
   
 void setup()
@@ -100,6 +100,7 @@ void setup()
 
   Wire.beginTransmission(0x3C); // start of the display 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.println("Position you MPU9250 flat and don't move it - calibrating...");
@@ -113,6 +114,10 @@ void setup()
     delay(1000);
    myMPU9250.autoOffsets();
     Serial.println("Done!");
+
+ myMPU9250.setAccRange(MPU9250_ACC_RANGE_2G);
+  myMPU9250.enableAccDLPF(true);
+    myMPU9250.setAccDLPF(MPU9250_DLPF_6); 
 
      myMPU9250.enableGyrDLPF();
     myMPU9250.setGyrDLPF(MPU9250_DLPF_6);
@@ -199,10 +204,10 @@ void modeIMU()
 {
   Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
   
-  xyzFloat Gyr_value=myMPU9250.getGyrValues(); //in degrees/s
-  x=Gyr_value.x ;
-   y=Gyr_value.y ;
-    z=Gyr_value.z ;
+  xyzFloat Angle=myMPU9250.getAngles(); //in degrees/s
+  x=Angle.x ;
+   y=Angle.y ;
+    z=Angle.z ;
 Serial.print("x =");
 Serial.print(x,3);
 Serial.print(" y =");
@@ -212,6 +217,25 @@ Serial.print(z,3);
 Serial.print("\n");
 delay(500);
 Wire.endTransmission(MPU9250_ADDR);
+
+ Wire.beginTransmission(0x3C); // start of the display 
+  display.clearDisplay();
+  display.setCursor(10,10);
+  display.println(x);
+  display.setCursor(10,20);
+  display.println(y);
+  
+  display.setCursor(10,30);
+  display.println(z);
+  
+  
+  
+ /* display.setCursor(70,10);
+  display.println(PSW1);
+  display.setCursor(70,30);
+  display.println(PSW2);*/
+  display.display();
+  Wire.endTransmission(0x3C); //end of the display 
   
   }
 
