@@ -132,9 +132,9 @@ void modeJoystick()
   PSW1 = digitalRead(SW1_pin);
   PSW2 = digitalRead(SW2_pin);
 
-mdp = 25;
 
-  int Pos[] = {analogRead(X1_pin),analogRead(Y1_pin),analogRead(X2_pin),analogRead(Y2_pin),mdp};
+
+  int Pos[] = {analogRead(X1_pin),analogRead(Y1_pin),analogRead(X2_pin),analogRead(Y2_pin),mdp,mode};
 
   /*
    long start = micros();
@@ -176,7 +176,6 @@ mdp = 25;
   }else {
   analogWrite(6,0);
   }
-  
     }
     delay(20);
 }
@@ -192,7 +191,7 @@ void modeIMU()
   x=Angle.x ;
    y=Angle.y ;
     z=Angle.z ;
-
+int Pos[] = {x,y,z,0,mdp,mode};
 delay(500);
 Wire.endTransmission(MPU9250_ADDR);
 
