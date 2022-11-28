@@ -6,7 +6,7 @@
 
 #define t1 "PIPE2"     
 #define t2 "PIPE1"     
-RF24 radio(9, 8);  // CE, CSN
+RF24 radio(9, 10);  // CE, CSN
 
 const byte adresses[][6] = {t1, t2};
 
@@ -22,6 +22,8 @@ int PosY1 = 90;
 int PosX2 = 90;
 int PosY2 = 90;
 
+byte mdp=25;
+int mode =2 ;
 
 void setup()
 {
@@ -51,9 +53,21 @@ radio.startListening();
 if (radio.available()){
   while (radio.available()) {  
     
-int Pos[] = {PosX1,PosY1,PosX2,PosY2};
+int Pos[] = {PosX1,PosY1,PosX2,PosY2,0,0};
+
     int value = 3;
     radio.read(Pos, sizeof(Pos));
+    Serial.println("Bjr");
+Serial.println(Pos[0]);
+  Serial.println(Pos[1]);
+  Serial.println(Pos[2]);
+  Serial.println(Pos[3]);  
+    Serial.println(Pos[4]);  
+      Serial.println(Pos[5]);  
+      
+    
+    if(Pos[4]==mdp)
+    {
     Serial.println(value);
     PosX1 = Pos[0];
     PosY1 = Pos[1];
@@ -64,12 +78,12 @@ int Pos[] = {PosX1,PosY1,PosX2,PosY2};
     myServoY1.write(PosY1);  
     myServoX2.write(PosX2);
     myServoY2.write(PosY2);
-
-  //Serial.println(Pos[0]);
-  //Serial.println(PosY1);
-  //Serial.println(PosX2);
-  //Serial.println(PosY2);  
-  
+Serial.println("Pos : " );
+  Serial.println(Pos[0]);
+  Serial.println(PosY1);
+  Serial.println(PosX2);
+  Serial.println(PosY2);  
+    }
   }
   delay(20);
   }

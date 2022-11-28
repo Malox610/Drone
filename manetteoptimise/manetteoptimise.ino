@@ -39,9 +39,9 @@ const byte Y2_pin = A0; //A0
 byte PSW1 = 1;
 byte PSW2 = 1;
 byte buzzer = 1;
-byte mdp =25;
+int  mdp =25;
 
- byte mode =0 ;
+ int mode =0 ;
 
   int x =0 ;
   int y=0;
@@ -185,6 +185,8 @@ void modeJoystick()
 
 void modeIMU()
 {
+      radio.stopListening();   
+
   Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
   
   xyzFloat Angle=myMPU9250.getAngles(); //in degrees/s
@@ -192,6 +194,8 @@ void modeIMU()
    y=Angle.y ;
     z=Angle.z ;
 int Pos[] = {x,y,z,0,mdp,mode};
+ radio.write(&Pos, sizeof(Pos));
+
 delay(500);
 Wire.endTransmission(MPU9250_ADDR);
 
@@ -208,7 +212,19 @@ Wire.endTransmission(MPU9250_ADDR);
   display.display();
   Wire.endTransmission(0x3C); //end of the display 
   
-  }
+  radio.startListening();
+  if(radio.available()) { 
+  while (radio.available()) {                                           
+      radio.read(&buzzer, sizeof(buzzer)); 
+        if(digitalRead(buzzer)==1){
+         analogWrite(6,200);
+         }else {
+          analogWrite(6,0);
+         }
+     }
+     delay(20);
+    }
+}
 
 void loop()
 { 
