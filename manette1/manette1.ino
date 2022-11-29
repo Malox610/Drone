@@ -10,6 +10,7 @@
 
 
 #define t1 "PIPE1"    
+
 #define t2 "PIPE2"
 #define MPU9250_ADDR 0x68 //gyrospcope I2C adress
 #define OLED_ADDR 0x3C

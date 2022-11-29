@@ -53,23 +53,26 @@ void interruptILS1()
   if(mode==0)
   {
     mode =1 ;
+    delay(400);
 
   }else if(mode==1)
   {
     mode =0;
+     delay(400);
     }
     delay(50);
 }
 
 void interruptILS2()
 {
-  if(mode==0)
+  if(mode == 0)
   {
-    mode =1 ;
-    
-  }else if(mode==1)
+    mode = 1 ;
+    delay(400);
+  }else if(mode == 1)
   {
-    mode =0;
+    mode = 0 ;
+    delay(400);
     }
     delay(50);
      
@@ -77,7 +80,7 @@ void interruptILS2()
   
 void setup()
 {
- // Serial.begin(115200);
+  Serial.begin(115200);
 //interrupt
 
  pinMode(SW1_pin, INPUT_PULLUP);
@@ -93,7 +96,7 @@ void setup()
   radio.openWritingPipe(adresses[0]);      
   radio.openReadingPipe(1, adresses[1]);
   radio.setPALevel(RF24_PA_MIN);
-  radio.setChannel(96);
+  radio.setChannel(120);
 
 
   Wire.beginTransmission(0x3C); // start of the display 
@@ -134,14 +137,14 @@ void modeJoystick()
 
 mdp = 25;
 
-  int Pos[] = {analogRead(X1_pin),analogRead(Y1_pin),analogRead(X2_pin),analogRead(Y2_pin),mdp};
+  int Pos[] = {analogRead(X1_pin),analogRead(Y1_pin),analogRead(X2_pin),analogRead(Y2_pin),mdp,mode};
 
-  /*
+  
    long start = micros();
    int value = analogRead(X1_pin);
    long stop = micros();
    Serial.println(stop-start);
-*/
+
    
   Pos[0] = map(analogRead(X1_pin), 0,1023,0,180);
   Pos[1] = map(analogRead(Y1_pin), 0,1023,0,180);
@@ -164,28 +167,12 @@ mdp = 25;
   display.display();
   Wire.endTransmission(); //end of the display 
   radio.write(&Pos, sizeof(Pos));
-
   delay(5);
-
-  radio.startListening();
-  if(radio.available()) { 
-  while (radio.available()) {                                           
-      radio.read(&buzzer, sizeof(buzzer)); 
-        if(digitalRead(buzzer)==1){
-  analogWrite(6,200);
-  }else {
-  analogWrite(6,0);
-  }
-  
-    }
-    delay(20);
-}
- delay(5);
-  
 }
 
 void modeIMU()
 {
+  radio.stopListening();   
   Wire.beginTransmission(MPU9250_ADDR);//debut recuperation donné gyroscope
   
   xyzFloat Angle=myMPU9250.getAngles(); //in degrees/s
@@ -207,8 +194,9 @@ Wire.endTransmission(MPU9250_ADDR);
   display.println(z);
   
   display.display();
+   int Pos[] = {x,y,z,0,mdp,mode};
+  radio.write(&Pos, sizeof(Pos));
   Wire.endTransmission(0x3C); //end of the display 
-  
   }
 
 void loop()
@@ -216,11 +204,25 @@ void loop()
   if(mode==1)
   {
    modeIMU(); 
-   
     }
     else
     {
       modeJoystick();
-      }
-
+      }   
+      
+  radio.startListening();
+  if(radio.available()) { 
+  while (radio.available()) {                                           
+  radio.read(&buzzer, sizeof(buzzer));
+      
+  //Serial.println(buzzer); 
+  if(digitalRead(buzzer)==1){
+  analogWrite(6,200);
+  }else {
+  analogWrite(6,0);
+  }
+    }
+    delay(20);
+}
+ delay(5);
 }
